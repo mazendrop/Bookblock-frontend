@@ -6,8 +6,9 @@ defineProps({
 
 <template>
   <div class="card">
-    <h3>{{ book.volumeInfo.title }}</h3>
-    <p>{{ book.volumeInfo.authors?.join(', ') }}</p>
+    <h3>{{ book.title }}</h3>
+    <p>{{ book.author }}</p>
+    <small>{{ book.readingStatus }}</small>
   </div>
 </template>
 

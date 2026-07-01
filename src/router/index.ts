@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { oktaAuth } from '../okta'
+import { auth } from '../lib/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,28 +18,19 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      // Login-Maske (Okta Sign-In-Widget)
+      // Eigenes Login-/Register-Formular
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue'),
     },
-    {
-      // Okta leitet nach erfolgreichem Login hierher zurueck
-      path: '/login/callback',
-      name: 'callback',
-      component: () => import('../views/LoginCallback.vue'),
-    },
   ],
 })
 
-// Navigation-Guard: geschuetzte Seiten nur mit gueltigem Login.
+// Navigation-Guard: geschuetzte Seiten nur mit Login.
 // Wer nicht angemeldet ist, landet auf /login.
-router.beforeEach(async (to) => {
-  if (to.meta.requiresAuth) {
-    const loggedIn = await oktaAuth.isAuthenticated()
-    if (!loggedIn) {
-      return { path: '/login' }
-    }
+router.beforeEach((to) => {
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return { path: '/login' }
   }
 })
 

@@ -1,8 +1,9 @@
 // Zentrale API-Schicht: Backend (eigene REST-API) + Google Books
 
-import { oktaAuth } from '../okta'
+import { auth } from './auth'
+import { BASE_URL } from './config'
 
-export const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
+export { BASE_URL }
 
 export interface BookEntry {
   id?: number
@@ -18,8 +19,7 @@ export interface BookEntry {
  * als "Authorization: Bearer ..." an. So weiss das Backend, wer anfragt.
  */
 function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
-  const token = oktaAuth.getAccessToken()
-  return token ? { ...extra, Authorization: `Bearer ${token}` } : extra
+  return auth.token ? { ...extra, Authorization: `Bearer ${auth.token}` } : extra
 }
 
 export async function fetchBooks(): Promise<BookEntry[]> {

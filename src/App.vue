@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { store, toasts } from './lib/store'
 import { i18n, type Locale } from './lib/i18n'
 import { auth } from './lib/auth'
 
 const LOCALES: Locale[] = ['en', 'de']
+
+const router = useRouter()
+
+function logout() {
+  auth.logout()
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -44,7 +51,7 @@ const LOCALES: Locale[] = ['en', 'de']
 
         <div v-if="auth.isAuthenticated" class="user-box">
           <span class="user-email" :title="auth.email">{{ auth.email }}</span>
-          <button class="logout-btn" @click="auth.logout()">{{ i18n.t('nav.logout') }}</button>
+          <button class="logout-btn" @click="logout">{{ i18n.t('nav.logout') }}</button>
         </div>
       </div>
     </div>

@@ -1,17 +1,15 @@
 import { describe, it, expect, vi } from 'vitest'
 
-// Okta wird durch einen Mock ersetzt: getAccessToken liefert ein festes
-// Test-Token. So testen wir die API-Schicht ohne echten Login.
-vi.mock('../../okta', () => ({
-  oktaAuth: {
-    getAccessToken: () => 'test-token-123',
-  },
+// Auth-Store mocken: token liefert ein festes Test-Token. So testen wir die
+// API-Schicht ohne echten Login.
+vi.mock('../auth', () => ({
+  auth: { token: 'test-token-123' },
 }))
 
 import { fetchBooks, searchGoogleBooks } from '../api'
 
 describe('API-Schicht', () => {
-  it('haengt das Okta-Token als Bearer an Backend-Anfragen an', async () => {
+  it('haengt das Token als Bearer an Backend-Anfragen an', async () => {
     // fetch faelschen, damit kein echtes Backend noetig ist
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => [] })
     vi.stubGlobal('fetch', fetchMock)

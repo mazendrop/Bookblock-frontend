@@ -15,8 +15,6 @@
     "lint:eslint": "eslint . --fix --cache"
   },
   "dependencies": {
-    "@okta/okta-auth-js": "^7.8.0",
-    "@okta/okta-signin-widget": "^7.22.0",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4"
   },

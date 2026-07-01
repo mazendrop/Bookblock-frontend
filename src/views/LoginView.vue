@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '../lib/auth'
+import { store } from '../lib/store'
 
 const router = useRouter()
 
@@ -20,6 +21,9 @@ async function submit() {
     } else {
       await auth.register(email.value, password.value)
     }
+    // Alte Liste (evtl. vom vorherigen Nutzer) leeren -> wird fuer den neuen
+    // Nutzer frisch geladen.
+    store.reset()
     await router.replace('/')
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Fehler bei der Anmeldung.'

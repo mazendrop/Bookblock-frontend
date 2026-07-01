@@ -12,6 +12,12 @@ export const store = reactive({
     this.loaded = true
   },
 
+  /** Leert die Liste - z. B. beim Wechsel des angemeldeten Nutzers. */
+  reset() {
+    this.books = []
+    this.loaded = false
+  },
+
   isSaved(title: string, author: string): boolean {
     const t = title.trim().toLowerCase()
     const a = author.trim().toLowerCase()

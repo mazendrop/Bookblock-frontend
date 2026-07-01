@@ -10,6 +10,7 @@ const router = useRouter()
 
 function logout() {
   auth.logout()
+  store.reset()
   router.push('/login')
 }
 </script>

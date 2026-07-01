@@ -8,6 +8,8 @@ const messages: Record<Locale, Record<string, string>> = {
   en: {
     'nav.search': 'SEARCH',
     'nav.list': 'MY LIST',
+    'nav.logout': 'LOG OUT',
+    'nav.login': 'LOG IN',
     'home.eyebrow': '// GOOGLE BOOKS CATALOG — {n} BOOKS SAVED',
     'home.title.1': 'FIND YOUR',
     'home.title.2': 'NEXT',
@@ -46,6 +48,8 @@ const messages: Record<Locale, Record<string, string>> = {
   de: {
     'nav.search': 'SUCHE',
     'nav.list': 'MEINE LISTE',
+    'nav.logout': 'ABMELDEN',
+    'nav.login': 'ANMELDEN',
     'home.eyebrow': '// GOOGLE BOOKS KATALOG — {n} BÜCHER GESPEICHERT',
     'home.title.1': 'FINDE DEIN',
     'home.title.2': 'NÄCHSTES',

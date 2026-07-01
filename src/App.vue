@@ -2,6 +2,7 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { store, toasts } from './lib/store'
 import { i18n, type Locale } from './lib/i18n'
+import { auth } from './lib/auth'
 
 const LOCALES: Locale[] = ['en', 'de']
 </script>
@@ -21,7 +22,7 @@ const LOCALES: Locale[] = ['en', 'de']
       </RouterLink>
 
       <div class="header-right">
-        <nav class="main-nav">
+        <nav v-if="auth.isAuthenticated" class="main-nav">
           <RouterLink to="/" class="nav-link">{{ i18n.t('nav.search') }}</RouterLink>
           <RouterLink to="/list" class="nav-link">
             {{ i18n.t('nav.list') }}
@@ -39,6 +40,11 @@ const LOCALES: Locale[] = ['en', 'de']
           >
             {{ l.toUpperCase() }}
           </button>
+        </div>
+
+        <div v-if="auth.isAuthenticated" class="user-box">
+          <span class="user-email" :title="auth.email">{{ auth.email }}</span>
+          <button class="logout-btn" @click="auth.logout()">{{ i18n.t('nav.logout') }}</button>
         </div>
       </div>
     </div>
@@ -177,6 +183,40 @@ const LOCALES: Locale[] = ['en', 'de']
 .lang-btn.active {
   background: var(--paper);
   color: var(--ink);
+}
+
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-email {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--gray-mid);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 7px 12px;
+  background: transparent;
+  color: var(--paper);
+  border: 2px solid var(--accent);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.logout-btn:hover {
+  background: var(--accent);
+  color: var(--paper);
 }
 
 .site-footer {

@@ -1,0 +1,28 @@
+name: Frontend CI
+
+# Laeuft bei jedem Push und bei jedem Pull Request.
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Abhaengigkeiten installieren
+        run: npm ci
+
+      - name: Unit-Tests (Vitest)
+        run: npm run test:unit -- --run
+
+      - name: Produktions-Build
+        run: npm run build

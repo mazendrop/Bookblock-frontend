@@ -1,83 +1,218 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { store, toasts } from './lib/store'
+import { i18n, type Locale } from './lib/i18n'
+
+const LOCALES: Locale[] = ['en', 'de']
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <header class="site-header">
+    <div class="header-inner">
+      <RouterLink to="/" class="logo">BOOK<span class="logo-accent">BLOCK</span></RouterLink>
 
-    <div class="wrapper">
+      <div class="header-right">
+        <nav class="main-nav">
+          <RouterLink to="/" class="nav-link">{{ i18n.t('nav.search') }}</RouterLink>
+          <RouterLink to="/list" class="nav-link">
+            {{ i18n.t('nav.list') }}
+            <span class="badge">{{ store.books.length }}</span>
+          </RouterLink>
+        </nav>
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button
+            v-for="l in LOCALES"
+            :key="l"
+            class="lang-btn"
+            :class="{ active: i18n.locale === l }"
+            @click="i18n.setLocale(l)"
+          >
+            {{ l.toUpperCase() }}
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
   <RouterView />
+
+  <footer class="site-footer">
+    <span>BOOKBLOCK — HTW BERLIN WEBTECH 2026</span>
+    <span>POWERED BY GOOGLE BOOKS + SPRING BOOT</span>
+  </footer>
+
+  <!-- Toasts -->
+  <div class="toast-container" aria-live="polite">
+    <div v-for="toast in toasts" :key="toast.id" class="toast" :class="{ 'toast-error': toast.error }">
+      {{ toast.message }}
+    </div>
+  </div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--ink);
+  color: var(--paper);
+  border-bottom: 4px solid var(--accent);
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .logo {
-  display: block;
-  margin: 0 auto 2rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 1px;
+  color: var(--paper);
+  text-decoration: none;
+  user-select: none;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+.logo-accent {
+  color: var(--accent);
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.main-nav {
+  display: flex;
+  gap: 6px;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 9px 18px;
+  color: var(--gray-mid);
+  text-decoration: none;
+  border: 2px solid transparent;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
 }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+.nav-link:hover {
+  color: var(--paper);
 }
 
-nav a:first-of-type {
-  border: 0;
+.nav-link.router-link-exact-active {
+  color: var(--paper);
+  border-color: var(--accent);
+  background: rgba(255, 61, 0, 0.12);
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 6px;
+  font-size: 0.68rem;
+  background: var(--accent);
+  color: var(--paper);
+}
+
+.lang-switch {
+  display: flex;
+  border: 2px solid var(--gray-mid);
+}
+
+.lang-btn {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 6px 10px;
+  background: transparent;
+  color: var(--gray-mid);
+  border: none;
+  transition: background var(--transition), color var(--transition);
+}
+
+.lang-btn:hover {
+  color: var(--paper);
+}
+
+.lang-btn.active {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.site-footer {
+  border-top: var(--border);
+  background: var(--ink);
+  color: var(--gray-mid);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 24px;
+}
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 12px 20px;
+  border: var(--border-thin);
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: var(--shadow);
+  max-width: 320px;
+  animation: slideIn 200ms ease;
+}
+
+.toast-error {
+  background: var(--accent);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 640px) {
+  .header-inner {
+    height: auto;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
   }
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+  .header-right {
+    flex-direction: column;
+    gap: 8px;
   }
 }
 </style>

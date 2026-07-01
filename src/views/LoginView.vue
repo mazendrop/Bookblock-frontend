@@ -1,26 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount } from 'vue'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - das Widget bringt keine perfekten Vue-Typen mit
-import OktaSignIn from '@okta/okta-signin-widget'
-import '@okta/okta-signin-widget/css/okta-sign-in.min.css'
-import { oktaSignInConfig } from '../okta'
+import { oktaAuth } from '../okta'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let widget: any = null
-
-onMounted(() => {
-  widget = new OktaSignIn(oktaSignInConfig)
-  // Zeigt die Login-/Register-Maske und leitet nach Erfolg zu /login/callback
-  widget.showSignInAndRedirect({ el: '#okta-signin-container' }).catch((err: unknown) => {
-    console.error('Okta Sign-In-Widget Fehler:', err)
-  })
-})
-
-onBeforeUnmount(() => {
-  // Widget aufraeumen, wenn die Seite verlassen wird
-  widget?.remove()
-})
+// Leitet zur Okta-Login-/Registrierungsseite weiter (Authorization Code + PKCE).
+// Nach erfolgreichem Login kommt Okta zu /login/callback zurueck.
+async function login() {
+  await oktaAuth.signInWithRedirect()
+}
 </script>
 
 <template>
@@ -28,25 +13,26 @@ onBeforeUnmount(() => {
     <div class="login-card">
       <p class="login-eyebrow">// BOOKBLOCK — ANMELDUNG</p>
       <h1 class="login-title">MELDE DICH<br />AN.</h1>
-      <p class="login-sub">Log dich ein oder registriere dich, um deine persönliche Leseliste zu sehen.</p>
-      <div id="okta-signin-container"></div>
+      <p class="login-sub">
+        Log dich ein oder registriere dich, um deine persönliche Leseliste zu sehen.
+      </p>
+      <button class="login-btn" @click="login">ANMELDEN / REGISTRIEREN ▸</button>
     </div>
   </main>
 </template>
 
-<style>
-/* Seite */
+<style scoped>
 .login-page {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 64px 24px;
   display: flex;
   justify-content: center;
 }
 
 .login-card {
   width: 100%;
-  max-width: 460px;
+  max-width: 520px;
 }
 
 .login-eyebrow {
@@ -59,64 +45,41 @@ onBeforeUnmount(() => {
 
 .login-title {
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-size: clamp(2.4rem, 7vw, 3.6rem);
   line-height: 0.95;
   color: var(--ink);
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .login-sub {
   font-family: var(--font-mono);
   font-size: 0.9rem;
   color: var(--gray-deep);
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
-/* --- Okta-Widget an das Brutalist-Design anpassen --- */
-#okta-signin-container .okta-sign-in-header,
-#okta-signin-container .auth-header {
-  border: none;
-}
-
-#okta-signin-container #okta-sign-in.auth-container {
-  margin: 0;
-  border: var(--border);
-  border-radius: 0;
-  box-shadow: var(--shadow);
-  background: var(--paper-raised);
+.login-btn {
   font-family: var(--font-mono);
-}
-
-#okta-signin-container #okta-sign-in.auth-container .okta-form-title {
-  font-family: var(--font-display);
-  color: var(--ink);
-}
-
-#okta-signin-container #okta-sign-in.auth-container input[type='text'],
-#okta-signin-container #okta-sign-in.auth-container input[type='password'] {
-  border: var(--border-thin);
-  border-radius: 0;
-  font-family: var(--font-mono);
-}
-
-#okta-signin-container #okta-sign-in.auth-container .button-primary {
-  background: var(--accent);
-  border: var(--border-thin);
-  border-radius: 0;
-  box-shadow: var(--shadow-sm);
-  color: var(--paper);
-  font-family: var(--font-mono);
+  font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 1px;
-  transition: transform var(--transition);
+  padding: 16px 28px;
+  background: var(--accent);
+  color: var(--paper);
+  border: var(--border);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform var(--transition), background var(--transition);
 }
 
-#okta-signin-container #okta-sign-in.auth-container .button-primary:hover {
+.login-btn:hover {
   background: var(--accent-press);
-  transform: translate(-1px, -1px);
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--ink);
 }
 
-#okta-signin-container #okta-sign-in.auth-container a {
-  color: var(--accent);
+.login-btn:active {
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-sm);
 }
 </style>

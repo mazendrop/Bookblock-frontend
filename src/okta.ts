@@ -8,7 +8,7 @@ const issuer = import.meta.env.VITE_OKTA_ISSUER as string
 const clientId = import.meta.env.VITE_OKTA_CLIENT_ID as string
 
 // okta-auth-js: kuemmert sich um Tokens (Access-Token fuers Backend, ID-Token
-// fuer die Nutzerdaten) und den PKCE-Login-Flow.
+// fuer die Nutzerdaten) und den PKCE-Redirect-Login.
 export const oktaAuth = new OktaAuth({
   issuer,
   clientId,
@@ -16,17 +16,3 @@ export const oktaAuth = new OktaAuth({
   scopes: ['openid', 'profile', 'email'],
   pkce: true,
 })
-
-// Konfiguration fuer das Okta Sign-In-Widget (die Login-/Register-Maske).
-export const oktaSignInConfig = {
-  // baseUrl ist die Okta-Org-URL ohne den /oauth2/...-Teil
-  baseUrl: issuer ? issuer.split('/oauth2')[0] : '',
-  clientId,
-  redirectUri: window.location.origin + '/login/callback',
-  authParams: {
-    issuer,
-    scopes: ['openid', 'profile', 'email'],
-  },
-  // Selbst-Registrierung erlauben (Nutzer koennen sich selbst anlegen)
-  features: { registration: true },
-}

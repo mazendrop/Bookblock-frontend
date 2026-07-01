@@ -2,6 +2,7 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { store, toasts } from './lib/store'
 import { i18n, type Locale } from './lib/i18n'
+import logoMark from './assets/logo-mark.svg'
 
 const LOCALES: Locale[] = ['en', 'de']
 </script>
@@ -9,7 +10,10 @@ const LOCALES: Locale[] = ['en', 'de']
 <template>
   <header class="site-header">
     <div class="header-inner">
-      <RouterLink to="/" class="logo">BOOK<span class="logo-accent">BLOCK</span></RouterLink>
+      <RouterLink to="/" class="logo">
+        <img :src="logoMark" class="logo-mark" alt="" width="32" height="32" />
+        <span class="logo-word">BOOK<span class="logo-accent">BLOCK</span></span>
+      </RouterLink>
 
       <div class="header-right">
         <nav class="main-nav">
@@ -78,12 +82,26 @@ const LOCALES: Locale[] = ['en', 'de']
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-display);
   font-size: 1.35rem;
   letter-spacing: 1px;
   color: var(--paper);
   text-decoration: none;
   user-select: none;
+}
+
+.logo-mark {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex: none;
+}
+
+.logo-word {
+  line-height: 1;
 }
 
 .logo-accent {

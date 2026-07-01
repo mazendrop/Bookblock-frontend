@@ -56,6 +56,15 @@ export interface SearchResult {
 
 const GOOGLE_BOOKS_KEY = import.meta.env.VITE_GOOGLE_BOOKS_KEY || ''
 
+if (!GOOGLE_BOOKS_KEY) {
+  // Ohne Key limitiert Google pro IP sehr streng -> häufige 429-Fehler.
+  // Vite liest .env.local nur beim Start -> nach Änderung Dev-Server neu starten!
+  console.warn(
+    '[BookBlock] Kein VITE_GOOGLE_BOOKS_KEY gesetzt. Suchen werden ohne API-Key ' +
+      'ausgeführt und schnell rate-limited (429). .env.local prüfen und Dev-Server neu starten.',
+  )
+}
+
 export const PAGE_SIZE = 12
 
 export interface SearchPage {
@@ -63,22 +72,39 @@ export interface SearchPage {
   totalItems: number
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
 export async function searchGoogleBooks(query: string, page = 1): Promise<SearchPage> {
   const startIndex = (page - 1) * PAGE_SIZE
-  const params = `q=intitle:${encodeURIComponent(query)}&maxResults=${PAGE_SIZE}&startIndex=${startIndex}`
+  const params = `q=intitle:${encodeURIComponent(query)}&maxResults=${PAGE_SIZE}&startIndex=${startIndex}&country=US`
   const baseUrl = `https://www.googleapis.com/books/v1/volumes?${params}`
+  // Key behalten! Ein 429 verschwindet nicht dadurch, dass man den Key weglässt —
+  // ohne Key ist das IP-Limit noch strenger. Stattdessen mit Backoff erneut versuchen.
+  const url = GOOGLE_BOOKS_KEY ? `${baseUrl}&key=${GOOGLE_BOOKS_KEY}` : baseUrl
 
-  // Erst mit Key (falls vorhanden), bei 403/429 ohne Key erneut versuchen — und umgekehrt
-  let res = await fetch(GOOGLE_BOOKS_KEY ? `${baseUrl}&key=${GOOGLE_BOOKS_KEY}` : baseUrl)
-  if ((res.status === 403 || res.status === 429) && GOOGLE_BOOKS_KEY) {
-    res = await fetch(baseUrl)
+  let res!: Response
+  const MAX_TRIES = 3
+  for (let attempt = 0; attempt < MAX_TRIES; attempt++) {
+    res = await fetch(url)
+    if (res.status !== 429) break
+    if (attempt < MAX_TRIES - 1) await sleep(600 * 2 ** attempt) // 600ms, 1.2s
   }
+
   if (!res.ok) {
-    throw new Error(
-      res.status === 429
-        ? 'Google Books is rate-limiting right now — wait a few seconds and try again.'
-        : `Google Books error: ${res.status}`,
-    )
+    if (res.status === 429) {
+      throw new Error(
+        GOOGLE_BOOKS_KEY
+          ? 'Google Books drosselt gerade (Tageskontingent des Keys evtl. erschöpft). Kurz warten und erneut versuchen.'
+          : 'Kein API-Key aktiv — Google drosselt anonyme Anfragen. Key in .env.local setzen und Dev-Server neu starten.',
+      )
+    }
+    if (res.status === 400 || res.status === 403) {
+      throw new Error(
+        `Google Books lehnt den API-Key ab (${res.status}). Prüfe: Books API aktiviert? ` +
+          `Key-Einschränkungen (HTTP-Referrer/API) korrekt?`,
+      )
+    }
+    throw new Error(`Google Books error: ${res.status}`)
   }
   const data = await res.json()
   if (!data.items) return { results: [], totalItems: 0 }

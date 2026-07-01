@@ -57,7 +57,9 @@ function logout() {
     </div>
   </header>
 
-  <RouterView />
+  <div class="app-body">
+    <RouterView />
+  </div>
 
   <footer class="site-footer">
     <span>BOOKBLOCK — HTW BERLIN WEBTECH 2026</span>
@@ -73,6 +75,14 @@ function logout() {
 </template>
 
 <style scoped>
+/* Inhaltsbereich waechst und schiebt den Footer immer ganz nach unten,
+   auch auf kurzen Seiten wie dem Login. */
+.app-body {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
 .site-header {
   position: sticky;
   top: 0;

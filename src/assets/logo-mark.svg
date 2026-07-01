@@ -1,0 +1,10 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BookBlock">
+  <!-- Block / Buch-Körper -->
+  <rect x="4" y="4" width="32" height="32" fill="#f2efe9" stroke="#0e0e0c" stroke-width="3"/>
+  <!-- Buchrücken (Akzent) -->
+  <rect x="4" y="4" width="9" height="32" fill="#ff3d00" stroke="#0e0e0c" stroke-width="3"/>
+  <!-- Seiten -->
+  <line x1="17" y1="13" x2="31" y2="13" stroke="#0e0e0c" stroke-width="3"/>
+  <line x1="17" y1="20" x2="31" y2="20" stroke="#0e0e0c" stroke-width="3"/>
+  <line x1="17" y1="27" x2="26" y2="27" stroke="#0e0e0c" stroke-width="3"/>
+</svg>

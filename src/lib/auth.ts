@@ -25,11 +25,27 @@ export const auth = reactive({
 
   /** Schickt die Daten ans Backend und speichert das zurueckgegebene Token. */
   async submit(path: string, email: string, password: string) {
-    const res = await fetch(`${BASE_URL}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
+    // Timeout, damit die Anfrage nie endlos haengt. 70s decken auch den
+    // "Cold Start" des kostenlosen Render-Backends ab.
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 70_000)
+
+    let res: Response
+    try {
+      res = await fetch(`${BASE_URL}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        signal: controller.signal,
+      })
+    } catch {
+      throw new Error(
+        'Server nicht erreichbar. Der Gratis-Server schläft evtl. gerade — bitte in ~1 Minute nochmal versuchen.',
+      )
+    } finally {
+      clearTimeout(timeout)
+    }
+
     if (!res.ok) {
       throw new Error(errorMessage(res.status))
     }

@@ -11,10 +11,15 @@ const email = ref('')
 const password = ref('')
 const error = ref('')
 const busy = ref(false)
+const wakingUp = ref(false)
+let hintTimer: ReturnType<typeof setTimeout> | undefined
 
 async function submit() {
   error.value = ''
   busy.value = true
+  wakingUp.value = false
+  // Nach 4 Sek. Hinweis zeigen, dass der Gratis-Server evtl. gerade aufwacht.
+  hintTimer = setTimeout(() => (wakingUp.value = true), 4000)
   try {
     if (mode.value === 'login') {
       await auth.login(email.value, password.value)
@@ -29,6 +34,8 @@ async function submit() {
     error.value = e instanceof Error ? e.message : 'Fehler bei der Anmeldung.'
   } finally {
     busy.value = false
+    wakingUp.value = false
+    clearTimeout(hintTimer)
   }
 }
 
@@ -76,6 +83,11 @@ function toggleMode() {
         <button class="login-btn" type="submit" :disabled="busy">
           {{ busy ? 'BITTE WARTEN …' : mode === 'login' ? 'ANMELDEN ▸' : 'REGISTRIEREN ▸' }}
         </button>
+
+        <p v-if="wakingUp" class="login-hint">
+          Der Server wacht gerade auf (kostenloser Render-Server, schläft bei Inaktivität).
+          Das kann bis zu einer Minute dauern — bitte kurz Geduld.
+        </p>
       </form>
 
       <button class="switch-btn" type="button" @click="toggleMode">
@@ -164,6 +176,15 @@ function toggleMode() {
   background: var(--accent);
   border: var(--border-thin);
   padding: 10px 12px;
+}
+
+.login-hint {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--gray-deep);
+  border-left: 3px solid var(--accent);
+  padding: 6px 12px;
+  margin-top: 4px;
 }
 
 .login-btn {
